@@ -13,7 +13,6 @@ import org.casbin.jcasbin.main.Enforcer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -25,9 +24,13 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class PolicyFilter extends OncePerRequestFilter {
   
-  private static final List<String> EXCLUDE_URLS = Arrays.asList("/policies");
-
-  private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
+  private static final List<String> EXCLUDE_URLS = Arrays.asList(
+		  "/policies", 
+		  "/webjars/springfox-swagger-ui",
+		  "/swagger-resources",
+		  "/v2/api-docs",
+		  "/csrf",
+		  "/swagger-ui.html");
   
   @Autowired
   private Enforcer enforcer;
@@ -59,7 +62,7 @@ public class PolicyFilter extends OncePerRequestFilter {
   
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-    return EXCLUDE_URLS.stream().anyMatch(url -> PATH_MATCHER.match(url, request.getServletPath()));
+    return EXCLUDE_URLS.stream().anyMatch(url -> request.getServletPath().contains(url));
   }
 
 }
